@@ -1,0 +1,7 @@
+.ipynb_checkpoints
+data/cartoon/*
+data/photos/*
+results/images/*
+results/models/*
+src/__pycache__/
+utils/__pycache__/
