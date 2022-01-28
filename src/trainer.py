@@ -41,8 +41,8 @@ class Trainer():
 
         self.optim_gen = optim.Adam(self.generator.parameters(),lr=config.LR_GEN)
         self.optim_dis = optim.Adam(self.discriminator.parameters(),lr=config.LR_DIS)
-        self.scheduler_gen = optim.lr_scheduler.MultiStepLR(optimizer=self.optim_gen, milestones=[self.epoch // 5, self.epoch // 5 * 2, self.epoch // 5 * 3, self.epoch // 5 * 4], gamma=0.1)
-        self.scheduler_dis = optim.lr_scheduler.MultiStepLR(optimizer=self.optim_dis, milestones=[self.epoch // 5, self.epoch // 5 * 2, self.epoch // 5 * 3, self.epoch // 5 * 4], gamma=0.1)
+        self.scheduler_gen = optim.lr_scheduler.MultiStepLR(optimizer=self.optim_gen, milestones=[15, 40, 65], gamma=0.1)
+        self.scheduler_dis = optim.lr_scheduler.MultiStepLR(optimizer=self.optim_dis, milestones=[15, 40, 65], gamma=0.1)
 
         self.adv_loss = AdversarialLoss()
         self.con_loss = ContentLoss(init_weights=config.VGG_PATH)
@@ -182,7 +182,7 @@ class Trainer():
                         image_mix[0:self.size_photos[0],self.size_photos[1]:self.size_photos[1]*2] = output
                         image_mix = (255*image_mix).astype('float32')
                         image_mix = cv2.cvtColor(image_mix, cv2.COLOR_RGB2BGR)
-                        cv2.imwrite(os.path.join(self.path_save_test,f'Train_{im}_{epoch}.jpg'),image_mix)
+                        cv2.imwrite(os.path.join(self.path_save_test,f'Train_{im}_{epoch+1}.jpg'),image_mix)
                         im+=1
                         #writer.add_image(f'Image de test train epoch {epoch}',image_mix,epoch)
 
