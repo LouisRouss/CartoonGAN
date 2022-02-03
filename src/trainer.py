@@ -41,8 +41,8 @@ class Trainer():
 
         self.optim_gen = optim.Adam(self.generator.parameters(),lr=config.LR_GEN)
         self.optim_dis = optim.Adam(self.discriminator.parameters(),lr=config.LR_DIS)
-        self.scheduler_gen = optim.lr_scheduler.MultiStepLR(optimizer=self.optim_gen, milestones=[15, 40, 65], gamma=0.1)
-        self.scheduler_dis = optim.lr_scheduler.MultiStepLR(optimizer=self.optim_dis, milestones=[15, 40, 65], gamma=0.1)
+        self.scheduler_gen = optim.lr_scheduler.MultiStepLR(optimizer=self.optim_gen, milestones=[25, 50, 75], gamma=0.1)
+        self.scheduler_dis = optim.lr_scheduler.MultiStepLR(optimizer=self.optim_dis, milestones=[25, 50, 75], gamma=0.1)
 
         self.adv_loss = AdversarialLoss()
         self.con_loss = ContentLoss(init_weights=config.VGG_PATH)

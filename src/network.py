@@ -14,9 +14,9 @@ class ResBlock(nn.Module):
         super().__init__()
         m = []
         for i in range(2):
-            m.append(nn.Conv2d(n_features,n_features,kernel_size,stride,padding=1))
+            m.append(nn.utils.spectral_norm(nn.Conv2d(n_features,n_features,kernel_size,stride,padding=1)))
             if batch_norm:
-                m.append(nn.BatchNorm2d(n_features))
+                m.append(nn.InstanceNorm2d(n_features))
             if i == 0 and activation is not None:
                 m.append(activation)
         self.body = nn.Sequential(*m)
@@ -31,18 +31,18 @@ class Generator(nn.Module):
         super().__init__()
 
         self.head = nn.Sequential(
-            nn.Conv2d(in_channels=3,out_channels=64,kernel_size=7,stride=1,padding=3),
-            nn.BatchNorm2d(num_features=64),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=3,out_channels=64,kernel_size=7,stride=1,padding=3)),
+            nn.InstanceNorm2d(num_features=64),
             nn.ReLU()
         )
         self.down_convolution = nn.Sequential(
-            nn.Conv2d(in_channels=64,out_channels=128,kernel_size=3,stride=2,padding=1),
-            nn.Conv2d(in_channels=128,out_channels=128,kernel_size=3,stride=1,padding=1),
-            nn.BatchNorm2d(num_features=128),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=64,out_channels=128,kernel_size=3,stride=2,padding=1)),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=128,out_channels=128,kernel_size=3,stride=1,padding=1)),
+            nn.InstanceNorm2d(num_features=128),
             nn.ReLU(),
-            nn.Conv2d(in_channels=128,out_channels=256,kernel_size=3,stride=2,padding=1),
-            nn.Conv2d(in_channels=256,out_channels=256,kernel_size=3,stride=1,padding=1),
-            nn.BatchNorm2d(num_features=256),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=128,out_channels=256,kernel_size=3,stride=2,padding=1)),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=256,out_channels=256,kernel_size=3,stride=1,padding=1)),
+            nn.InstanceNorm2d(num_features=256),
             nn.ReLU()
         )
 
@@ -52,13 +52,13 @@ class Generator(nn.Module):
         self.body = nn.Sequential(*body)
 
         self.upsampler = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=256,out_channels=128,kernel_size=3,stride=2, padding=1, output_padding=1),
-            nn.Conv2d(in_channels=128,out_channels=128,kernel_size=3,stride=1,padding=1),
-            nn.BatchNorm2d(num_features=128),
+            nn.utils.spectral_norm(nn.ConvTranspose2d(in_channels=256,out_channels=128,kernel_size=3,stride=2, padding=1, output_padding=1)),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=128,out_channels=128,kernel_size=3,stride=1,padding=1)),
+            nn.InstanceNorm2d(num_features=128),
             nn.ReLU(),
-            nn.ConvTranspose2d(in_channels=128,out_channels=64,kernel_size=3,stride=2, padding=1, output_padding=1),
-            nn.Conv2d(in_channels=64,out_channels=64,kernel_size=3,stride=1,padding=1),
-            nn.BatchNorm2d(num_features=64),
+            nn.utils.spectral_norm(nn.ConvTranspose2d(in_channels=128,out_channels=64,kernel_size=3,stride=2, padding=1, output_padding=1)),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=64,out_channels=64,kernel_size=3,stride=1,padding=1)),
+            nn.InstanceNorm2d(num_features=64),
             nn.ReLU(),
             nn.Conv2d(in_channels=64,out_channels=3,kernel_size=7,stride=1,padding=3)
         )
@@ -80,24 +80,24 @@ class Discriminator(nn.Module):
     def __init__(self,use_sigmoid=True):
         super().__init__()
         self.body = nn.Sequential(
-            nn.Conv2d(in_channels=3,out_channels=32,kernel_size=3,stride=1,padding=1),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=3,out_channels=32,kernel_size=3,stride=1,padding=1)),
             nn.LeakyReLU(),
-            nn.Conv2d(in_channels=32,out_channels=64,kernel_size=3,stride=2,padding=1),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=32,out_channels=64,kernel_size=3,stride=2,padding=1)),
             nn.LeakyReLU(),
-            nn.Conv2d(in_channels=64,out_channels=128,kernel_size=3,stride=1,padding=1),
-            nn.BatchNorm2d(num_features=128),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=64,out_channels=128,kernel_size=3,stride=1,padding=1)),
+            nn.InstanceNorm2d(num_features=128),
             nn.LeakyReLU(),
-            nn.Conv2d(in_channels=128,out_channels=128,kernel_size=3,stride=2,padding=1),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=128,out_channels=128,kernel_size=3,stride=2,padding=1)),
             nn.LeakyReLU(),
-            nn.Conv2d(in_channels=128,out_channels=256,kernel_size=3,stride=1,padding=1),
-            nn.BatchNorm2d(num_features=256),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=128,out_channels=256,kernel_size=3,stride=1,padding=1)),
+            nn.InstanceNorm2d(num_features=256),
             nn.LeakyReLU(),
-            nn.Conv2d(in_channels=256,out_channels=256,kernel_size=3,stride=1,padding=1),
-            nn.BatchNorm2d(num_features=256),
+            nn.utils.spectral_norm(nn.Conv2d(in_channels=256,out_channels=256,kernel_size=3,stride=1,padding=1)),
+            nn.InstanceNorm2d(num_features=256),
             nn.LeakyReLU()
         )
 
-        self.out = nn.Conv2d(in_channels=256,out_channels=1,kernel_size=3,stride=1,padding=1)
+        self.out = nn.utils.spectral_norm(nn.Conv2d(in_channels=256,out_channels=1,kernel_size=3,stride=1,padding=1))
         self.use_sigmoid = use_sigmoid
     
     def forward(self,input):
